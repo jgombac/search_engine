@@ -3,6 +3,10 @@ import sqlite3
 DB = "inverted-index.db"
 
 
+def connection():
+    return sqlite3.connect(DB)
+
+
 def init_database():
     con = sqlite3.connect(DB)
 
@@ -63,37 +67,46 @@ def update_posting(con, index_word, document_name, index):
     posting = get_or_create_posting(con, index_word, document_name)
     posting.frequency += 1
     posting.indexes.append(index)
-    cur.execute("UPDATE Posting SET frequency = ?, indexes = ?, WHERE word = ? AND documentName = ?",
+    cur.execute("UPDATE Posting SET frequency = ?, indexes = ? WHERE word = ? AND documentName = ?",
                 (posting.frequency, generate_indexes(posting.indexes), index_word, document_name))
     con.commit()
 
 
 def get_all_document_postings(con, document_name):
     cur = con.cursor()
-    cur.execute("SELECT * FROM Postings where documentName = ?", (document_name,))
+    cur.execute("SELECT * FROM Posting where documentName = ?", (document_name,))
     res = cur.fetchall()
     return list(map(lambda x: Posting(x[0], x[1], x[2], x[3]), res))
 
 
 def get_all_word_postings(con, index_word):
     cur = con.cursor()
-    cur.execute("SELECT * FROM Postings where word = ?", (index_word,))
+    cur.execute("SELECT * FROM Posting where word = ?", (index_word,))
     res = cur.fetchall()
     return list(map(lambda x: Posting(x[0], x[1], x[2], x[3]), res))
 
 
 def add_index(con, index_word, document_name, index):
     insert_index_word(con, index_word)
-    update_posting(con, index_word, document_name, str(index))
+    update_posting(con, index_word, document_name, index)
 
 
 def generate_indexes(index_list):
-    return ",".join(map(lambda x: str(x), sorted(index_list)))
+    return ",".join(map(lambda x: str(x), sorted(list(set(index_list)))))
 
 
 def parse_indexes(index_string):
-    return [int(x) for x in index_string.split(",")]
+    split = index_string.split(",")
+    if len(split) == 0:
+        return []
+    return [int(x) for x in split if len(x) > 0]
 
 
 if __name__ == '__main__':
-    init_database()
+    con = connection()
+
+    cur = con.cursor()
+    cur.execute("SELECT * FROM Posting")
+    res = cur.fetchall()
+    print(res)
+    con.close()
