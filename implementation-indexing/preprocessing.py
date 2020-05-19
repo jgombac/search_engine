@@ -25,6 +25,15 @@ def preprocess(text):
     return removed
 
 
+
+
+def preprocess_query(text):
+    text = text.lower()
+    tokens = nltk.word_tokenize(text)
+    return tokens
+
+
+
 def get_tokens(text):
     return [(token, i) for i, token in enumerate(nltk.word_tokenize(text))]
 
@@ -38,7 +47,12 @@ def remove_stopwords(tokens):
 
 
 
-# if __name__ == '__main__':
-#     html = get_file("../pages/evem.gov.si/evem.gov.si.4.html", "utf8")
-#     text = get_text(html)
-#     preprocess(text)
+if __name__ == '__main__':
+    html = get_file("../pages/evem.gov.si/evem.gov.si.4.html", "utf8")
+    text = get_text(html)
+    # pre = preprocess(text)
+    # print(pre)
+
+    query = "socialne pogodbe"
+    pre = preprocess_query(text)
+    print(pre)

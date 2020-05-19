@@ -106,7 +106,12 @@ if __name__ == '__main__':
     con = connection()
 
     cur = con.cursor()
-    cur.execute("SELECT * FROM Posting")
-    res = cur.fetchall()
-    print(res)
+    query = "varnost in zdravje".split(" ")
+    for word in query:
+        results = get_all_word_postings(con, word)
+
+
+    # cur.execute("SELECT * FROM Posting")
+    # res = cur.fetchall()
+    # print(res)
     con.close()
