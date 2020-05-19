@@ -86,6 +86,18 @@ def get_all_word_postings(con, index_word):
     return list(map(lambda x: Posting(x[0], x[1], x[2], x[3]), res))
 
 
+def get_all_multiword_postings(con, index_words):
+    cur = con.cursor()
+    words = tuple(index_words)
+    where_format = ("word = ? OR " * len(index_words))
+    where_format = where_format[:len(where_format) - 4]
+    print(where_format)
+    print(words)
+    cur.execute(f"SELECT * FROM Posting where {where_format}", words)
+    res = cur.fetchall()
+    return list(map(lambda x: Posting(x[0], x[1], x[2], x[3]), res))
+
+
 def add_index(con, index_word, document_name, index):
     insert_index_word(con, index_word)
     update_posting(con, index_word, document_name, index)
