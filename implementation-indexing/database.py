@@ -88,13 +88,29 @@ def get_all_word_postings(con, index_word):
 
 def get_all_multiword_postings(con, index_words):
     cur = con.cursor()
-    words = tuple(index_words)
+    word_count = len(index_words)
     where_format = ("word = ? OR " * len(index_words))
     where_format = where_format[:len(where_format) - 4]
+    index_words.extend(list(index_words))
+    index_words.append(word_count-1)
+    words = tuple(index_words)
     print(where_format)
     print(words)
-    cur.execute(f"SELECT * FROM Posting where {where_format}", words)
+
+    cur.execute(f"SELECT v.word, v.documentName, v.frequency, v.indexes "
+                f"FROM "
+                f"( SELECT * "
+                f"FROM Posting "
+                f"WHERE {where_format} ) AS v, "
+                f"( SELECT documentName "
+                f"FROM Posting "
+                f"WHERE {where_format} "
+                f"GROUP BY documentName "
+                f"HAVING COUNT(*) > ? ) AS d "
+                f"WHERE v.documentName = d.documentName "
+                f"ORDER BY v.documentName", words)
     res = cur.fetchall()
+    return res
     return list(map(lambda x: Posting(x[0], x[1], x[2], x[3]), res))
 
 
