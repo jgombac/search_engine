@@ -25,13 +25,11 @@ def preprocess(text):
     return removed
 
 
-
-
 def preprocess_query(text):
     text = text.lower()
     tokens = nltk.word_tokenize(text)
-    return tokens
-
+    removed = [t for t in tokens if t.isalpha() and t not in stopwords.stop_words_slovene]
+    return removed
 
 
 def get_tokens(text):
