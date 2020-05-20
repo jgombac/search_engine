@@ -33,7 +33,14 @@ def preprocess_query(text):
 
 
 def get_tokens(text):
-    return [(token, i) for i, token in enumerate(nltk.word_tokenize(text))]
+    tokens = nltk.word_tokenize(text)
+    result = []
+    offset = 0
+    for token in tokens:
+        offset = text.find(token, offset)
+        result.append((token, offset))
+        offset += len(token)
+    return result
 
 
 def get_stemmed(tokens):
@@ -48,9 +55,9 @@ def remove_stopwords(tokens):
 if __name__ == '__main__':
     html = get_file("../pages/evem.gov.si/evem.gov.si.4.html", "utf8")
     text = get_text(html)
-    # pre = preprocess(text)
-    # print(pre)
-
-    query = "socialne pogodbe"
-    pre = preprocess_query(text)
-    print(pre)
+    text = text.lower()
+    print(text[:200])
+    tokens = get_tokens(text)
+    print(tokens[:100])
+    removed = remove_stopwords(tokens)
+    print(removed)

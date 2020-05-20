@@ -1,9 +1,11 @@
 from utils import *
 from preprocessing import preprocess, get_text
-from database import add_index, connection
+from database import add_index, connection, init_database
+import tqdm
 
 
 def build():
+    init_database()
     con = connection()
 
     cur = con.cursor()
@@ -12,7 +14,7 @@ def build():
     con.commit()
 
     filenames = get_page_filenames()
-    for filename in filenames:
+    for filename in tqdm.tqdm(filenames):
         file = get_file(filename, "utf8")
         text = get_text(file)
         words = preprocess(text)
