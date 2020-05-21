@@ -1,5 +1,6 @@
 import glob
 
+
 def get_file(filename, encoding):
     with open(filename, 'r', encoding=encoding) as f:
         return f.read()

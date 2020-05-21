@@ -1,4 +1,6 @@
 import time
+from sys import argv
+
 import database as db
 import preprocessing as pp
 
@@ -7,7 +9,6 @@ relative_path = "../pages/"
 
 
 class Snippet:
-
     def __init__(self, text, front, back):
         self.text = text
         self.front = front
@@ -74,11 +75,8 @@ def create_snippets(result, width):
     return snippets
 
 
-if __name__ == '__main__':
+def find(query, result_count):
     con = db.connection()
-
-    result_count = 5
-    query = "predelovalne dejavnosti"
 
     start_time = time.perf_counter_ns()
     query_tokens = pp.preprocess_query(query)
@@ -87,7 +85,7 @@ if __name__ == '__main__':
     search_time = round((end_time - start_time) / 1000000)
 
     result_count = min(len(results), result_count)
-    tab = ' '*2
+    tab = ' ' * 2
     freq = 'Frequencies'
     doc = 'Document'
     snip = 'Snippet'
@@ -112,7 +110,7 @@ if __name__ == '__main__':
             if snippet.front:
                 if j == 0:
                     snippet_string += '... '
-                elif not snippets[j-1].back:
+                elif not snippets[j - 1].back:
                     snippet_string += '... '
             snippet_string += snippet.text
             if snippet.back:
@@ -121,3 +119,21 @@ if __name__ == '__main__':
                 snippet_string += ' '
         print(f"{tab}{result.frequency_sum}{' ' * (len(freq) - len(str(result.frequency_sum)))} {result.document_name}"
               f"{' ' * (longest_name - len(result.document_name))} {snippet_string}")
+    print()
+
+
+if __name__ == '__main__':
+    if len(argv) > 1:
+        find(argv[1], 5)
+    else:
+        queries = [
+            "predelovalne dejavnosti",
+            "trgovina",
+            "social services",
+
+            "sistem SPOT",
+            "EVEM",
+            "Registracija samostojnega podjetnika"
+        ]
+        for query in queries:
+            find(query, 5)
