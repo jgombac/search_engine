@@ -21,51 +21,62 @@ class Snippet:
 def create_snippets(result, width):
     file = pp.get_file(f"{relative_path}{result.document_name}", 'utf8')
     text = pp.get_text(file)
-    tokens = nltk.word_tokenize(text)
 
     snippets = list()
     indexes = list()
 
-    for w in range(len(result.indexes)):
-        index = int(result.indexes[w][0])
+    word_count = 0
+
+    for c in range(len(result.indexes)):
+        index = int(result.indexes[c][0])
         if index in indexes:
             continue
         indexes.append(index)
 
-        snippet = tokens[index]
+        snippet = text[index]
         front = True
         back = True
         try:
-            for i in range(1, width):
-                word = tokens[index + i]
-                if word == '.':
-                    snippet += '.'
-                    back = False
-                    break
-                indexes.append(index + i)
-                snippet += f" {word}"
+            for i in range(index + 1, len(text)):
+                if i <= len(text) - 2:
+                    stop = text[i:i + 2]
+                    if stop == '. ':
+                        snippet += '.'
+                        back = False
+                        break
+                char = text[i]
+                if char == ' ':
+                    word_count += 1
+                    if word_count > width:
+                        word_count = 0
+                        break
+                indexes.append(i)
+                snippet += char
         except IndexError:
             pass
         try:
-            for i in range(1, width):
-                word = tokens[index - i]
-                if word == '.':
-                    front = False
-                    break
-                indexes.append(index - i)
-                snippet = f"{word} {snippet}"
+            for i in range(index - 1, -1, -1):
+                if i >= 2:
+                    stop = text[i - 1:i + 1]
+                    if stop == '. ':
+                        front = False
+                        break
+                char = text[i]
+                if char == ' ':
+                    word_count += 1
+                    if word_count > width:
+                        word_count = 0
+                        break
+                indexes.append(i)
+                snippet = char + snippet
         except IndexError:
             pass
-        snippets.append(Snippet(snippet, front, back))
+        snippets.append(Snippet(snippet.replace('\n', ''), front, back))
     return snippets
 
 
 if __name__ == '__main__':
     con = db.connection()
-    tab = ' '*2
-    freq = 'Frequencies'
-    doc = 'Document'
-    snip = 'Snippet'
 
     result_count = 5
     query = "predelovalne dejavnosti"
@@ -77,7 +88,10 @@ if __name__ == '__main__':
     search_time = round((end_time - start_time) / 1000000)
 
     result_count = min(len(results), result_count)
-
+    tab = ' '*2
+    freq = 'Frequencies'
+    doc = 'Document'
+    snip = 'Snippet'
     longest_name = 0
     for i in range(result_count):
         if len(results[i].document_name) > longest_name:
