@@ -1,4 +1,3 @@
-import nltk
 import time
 import database as db
 import preprocessing as pp
@@ -83,7 +82,7 @@ if __name__ == '__main__':
 
     start_time = time.perf_counter_ns()
     query_tokens = pp.preprocess_query(query)
-    results = db.get_all_multiword_postings_alt(con, query_tokens)
+    results = db.get_all_multiword_postings(con, query_tokens)
     end_time = time.perf_counter_ns()
     search_time = round((end_time - start_time) / 1000000)
 

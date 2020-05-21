@@ -97,15 +97,13 @@ def get_all_word_postings(con, index_word):
     return list(map(lambda x: Posting(x[0], x[1], x[2], x[3]), res))
 
 
-def get_all_multiword_postings_alt(con, index_words):
+def get_all_multiword_postings(con, index_words):
     cur = con.cursor()
     word_count = len(index_words)
     where_format = ("word = ? OR " * len(index_words))
     where_format = where_format[:len(where_format) - 4]
     index_words.append(word_count-1)
     query_args = tuple(index_words)
-    # print(where_format)
-    # print(words)
 
     cur.execute(f"SELECT documentName, SUM(frequency), GROUP_CONCAT(indexes, \";\") "
                 f"FROM Posting "
@@ -115,8 +113,6 @@ def get_all_multiword_postings_alt(con, index_words):
                 f"ORDER BY SUM(frequency) DESC", query_args)
     res = cur.fetchall()
     return list(map(lambda x: SearchResult(x[0], x[1], x[2]), res))
-    return res
-    return list(map(lambda x: Posting(x[0], x[1], x[2], x[3]), res))
 
 
 def add_index(con, index_word, document_name, index):
