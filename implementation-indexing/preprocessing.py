@@ -1,5 +1,4 @@
 import nltk
-from slovene_stemmer import stem
 import stopwords
 from utils import *
 from bs4 import BeautifulSoup
